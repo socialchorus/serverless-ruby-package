@@ -143,11 +143,11 @@ class PackageRubyBundlePlugin {
     }
     execSync(`docker create -v /var/task --name ${tempContainer} ${dockerImage} /bin/true`)
     execSync(`docker cp ${localPath}/. ${tempContainer}:/var/task`)
-    const result = execSync(`docker run --rm --volumes-from ${tempContainer} ${dockerImage} bundle config set path 'vendor/bundle' && bundle install --standalone --redownload`)
+    const result = execSync(`docker run --rm --volumes-from ${tempContainer} ${dockerImage} bundle config set path 'vendor/bundle' && bundle install --standalone --path vendor/bundle`)
     if (this.config.debug) {
       this.log(result)
     }
-    execSync(`docker cp ${tempContainer}:/var/task/vendor ${localPath}`)
+    execSync(`docker cp ${tempContainer}:/var/task/vendor/bundle ${localPath}/vendor`)
     execSync(`docker rm ${tempContainer}`)
   }
 
