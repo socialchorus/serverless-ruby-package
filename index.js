@@ -141,8 +141,12 @@ class PackageRubyBundlePlugin {
     if (this.config.debug){
       this.log(`docker image: ${dockerImage}`);
     }
+    const gemfile = this.config.gemfile || `${localPath}/Gemfile`
+
+    execSync(`[ ! "$(docker ps -q -f name=${tempContainer})" ] || docker rm ${tempContainer}`)
     execSync(`docker create -v /var/task --name ${tempContainer} ${dockerImage} /bin/true`)
-    execSync(`docker cp ${localPath}/. ${tempContainer}:/var/task`)
+    execSync(`docker cp ${gemfile} ${tempContainer}:/var/task`)
+    execSync(`docker cp ${localPath}/vendor/bundle ${tempContainer}:/var/task/vendor`)
     const result = execSync(`docker run --rm --volumes-from ${tempContainer} ${dockerImage} bundle install --standalone --path vendor/bundle`)
     if (this.config.debug) {
       this.log(result)
